@@ -1,0 +1,45 @@
+export interface AppointmentServiceItemResponse {
+  service_id: number;
+  service_name: string;
+  price_charged: number;
+  status: string;
+}
+
+export interface AppointmentClientResponse {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+}
+
+export interface AppointmentDetailResponse {
+  id: number;
+  client: AppointmentClientResponse;
+  client_id: number;
+  created_by: number;
+  scheduled_at: string;
+  ends_at: string;
+  status: string;
+  channel: string;
+  duration: number;
+  total: number;
+  services: AppointmentServiceItemResponse[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SameWeekSuggestion {
+  suggested_date: string;
+  reference_appointment_id: number;
+}
+
+export interface CreateAppointmentPayload {
+  scheduled_at: string;
+  services: number[];
+  client_id?: number;
+}
+
+export interface CreateAppointmentResponse {
+  appointment: AppointmentDetailResponse;
+  suggestion?: SameWeekSuggestion;
+}
