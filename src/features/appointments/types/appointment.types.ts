@@ -8,8 +8,36 @@ export interface AppointmentServiceItemResponse {
 export interface AppointmentClientResponse {
   id: number;
   name: string;
-  email: string;
+  email: string | null;
   phone: string | null;
+}
+
+export interface AdminClientResponse {
+  id: number;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  role: string;
+}
+
+export interface ListAdminClientsResponse {
+  clients: AdminClientResponse[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export interface CreateAdminClientPayload {
+  name: string;
+  phone: string;
+  email?: string | null;
+}
+
+export interface CreateAdminClientResponse {
+  client: AdminClientResponse;
 }
 
 export interface AppointmentDetailResponse {
