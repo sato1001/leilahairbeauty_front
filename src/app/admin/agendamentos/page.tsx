@@ -247,8 +247,8 @@ export default function AdminAppointmentsPage() {
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
               <Pagination
                 count={pagination.total_pages}
-                page={Math.max(0, (page ?? 1) - 1)}
-                onChange={(_, nextPage) => setPage(nextPage + 1)}
+                page={page}
+                onChange={(_, nextPage) => setPage(nextPage)}
                 color="primary"
               />
             </Box>
