@@ -1,8 +1,11 @@
 import { apiClient } from "@/lib/api/client";
 import type {
   AppointmentResponse,
+  CreateAdminClientPayload,
+  CreateAdminClientResponse,
   CreateAppointmentPayload,
   CreateAppointmentResponse,
+  ListAdminClientsResponse,
   ListAppointmentsResponse,
   UpdateAppointmentPayload,
   WeeklyPerformanceResponse,
@@ -98,4 +101,40 @@ export const appointmentsService = {
       headers: getAuthHeaders(),
     });
   },
+
+  listClients: (params: { page?: number; limit?: number } = {}) => {
+    const searchParams = new URLSearchParams();
+
+    if (params.page) searchParams.set("page", String(params.page));
+    if (params.limit) searchParams.set("limit", String(params.limit));
+
+    const query = searchParams.toString();
+    const path = query ? `/appointments/clients?${query}` : "/appointments/clients";
+
+    return apiClient.get<ListAdminClientsResponse>(path, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  searchClients: (params: { q?: string; page?: number; limit?: number } = {}) => {
+    const searchParams = new URLSearchParams();
+
+    if (params.q) searchParams.set("q", params.q);
+    if (params.page) searchParams.set("page", String(params.page));
+    if (params.limit) searchParams.set("limit", String(params.limit));
+
+    const query = searchParams.toString();
+    const path = query
+      ? `/appointments/clients/search?${query}`
+      : "/appointments/clients/search";
+
+    return apiClient.get<ListAdminClientsResponse>(path, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  createClient: (payload: CreateAdminClientPayload) =>
+    apiClient.post<CreateAdminClientResponse>("/appointments/clients", payload, {
+      headers: getAuthHeaders(),
+    }),
 };

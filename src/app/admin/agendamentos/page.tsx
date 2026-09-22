@@ -108,9 +108,14 @@ export default function AdminAppointmentsPage() {
           </Typography>
         </Box>
 
-        <Button component={Link} href="/admin" variant="outlined">
-          Voltar ao dashboard
-        </Button>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+          <Button component={Link} href="/admin/agendamentos/novo" variant="contained">
+            Novo agendamento
+          </Button>
+          <Button component={Link} href="/admin" variant="outlined">
+            Voltar ao dashboard
+          </Button>
+        </Stack>
       </Stack>
 
       <Box component="form" onSubmit={handleSubmit} sx={{ mb: 3 }}>
