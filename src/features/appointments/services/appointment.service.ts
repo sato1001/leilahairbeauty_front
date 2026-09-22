@@ -70,4 +70,14 @@ export const appointmentsService = {
     apiClient.delete<AppointmentResponse>(`/appointments/${id}`, {
       headers: getAuthHeaders(),
     }),
+
+  confirm: (id: number) =>
+    apiClient.patch<AppointmentResponse>(`/appointments/${id}/confirm`, {}, {
+      headers: getAuthHeaders(),
+    }),
+
+  complete: (id: number) =>
+    apiClient.patch<AppointmentResponse>(`/appointments/${id}/complete`, {}, {
+      headers: getAuthHeaders(),
+    }),
 };

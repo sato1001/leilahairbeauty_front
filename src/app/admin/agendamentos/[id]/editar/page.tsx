@@ -5,7 +5,7 @@ import { useAppointment } from "@/features/appointments/hooks/useAppointments";
 import { Alert, Box, CircularProgress } from "@mui/material";
 import { useParams } from "next/navigation";
 
-export default function AppointmentEditPage() {
+export default function AdminAppointmentEditPage() {
   const params = useParams<{ id: string }>();
   const id = Number(params?.id ?? 0);
   const { data, isLoading, isError } = useAppointment(id);
@@ -25,7 +25,7 @@ export default function AppointmentEditPage() {
   return (
     <AppointmentEditorForm
       appointment={data.appointment}
-      successRedirectUrl={`/agendamentos/${data.appointment.id}`}
+      successRedirectUrl={`/admin/agendamentos/${data.appointment.id}`}
     />
   );
 }
