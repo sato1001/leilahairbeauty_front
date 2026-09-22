@@ -35,12 +35,12 @@ export function AppSidebar({
   onLogout?: () => void;
 }) {
   const content = (
-    <Box sx={{ width: { xs: 280, md: 260 }, height: "100%", display: "flex", flexDirection: "column", backgroundColor: "#fff" }}>
+    <Box sx={{ width: { xs: 280, md: 260 }, height: "100%", display: "flex", flexDirection: "column", backgroundColor: "#fff", overflow: "hidden" }}>
       <Box sx={{ p: 2.5, borderBottom: "1px solid rgba(122,63,84,0.12)" }}>
         <BrandLogo />
       </Box>
 
-      <List sx={{ px: 1.5, py: 2, flex: 1 }}>
+      <List sx={{ px: 1.5, py: 2, flex: 1, overflowY: "auto" }}>
         {items.map((item) => {
           const active = isNavigationActive(activePath, item.href, item.exact);
 
@@ -137,10 +137,7 @@ export function AppSidebar({
           borderRight: "1px solid rgba(122,63,84,0.12)",
           backgroundColor: "#fff",
           flexShrink: 0,
-          position: "sticky",
-          top: 0,
-          alignSelf: "stretch",
-          height: "100vh",
+          height: "100dvh",
           overflow: "hidden",
         }}
       >
