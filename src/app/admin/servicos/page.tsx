@@ -14,9 +14,11 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { servicesService } from "@/features/services/services/service.service";
+import { useModal } from "@/components/providers/ModalProvider";
 
 export default function AdminServicesPage() {
   const queryClient = useQueryClient();
+  const { confirmModal } = useModal();
   const [deleteError, setDeleteError] = useState("");
 
   const { data: services = [], isLoading, isError, refetch } = useQuery({
@@ -36,7 +38,16 @@ export default function AdminServicesPage() {
   });
 
   async function handleDelete(serviceId: number) {
-    if (!confirm("Deseja desativar este serviço? Esta ação é permanente no catálogo público.")) {
+    const confirmed = await confirmModal({
+      type: "warning",
+      title: "Desativar serviço?",
+      message: "Deseja desativar este serviço? Esta ação é permanente no catálogo público.",
+      confirmLabel: "Desativar",
+      cancelLabel: "Voltar",
+      confirmColor: "error",
+    });
+
+    if (!confirmed) {
       return;
     }
 

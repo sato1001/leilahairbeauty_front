@@ -19,6 +19,7 @@ import { useMemo, useState } from "react";
 import { AppointmentStatusBadge } from "@/features/appointments/components/AppointmentStatusBadge";
 import { useAppointment } from "@/features/appointments/hooks/useAppointments";
 import { appointmentsService } from "@/features/appointments/services/appointment.service";
+import { useModal } from "@/components/providers/ModalProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 function formatDateTime(value: string) {
@@ -40,6 +41,7 @@ export default function AppointmentDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const id = Number(params?.id ?? 0);
+  const { confirmModal } = useModal();
   const [isCanceling, setIsCanceling] = useState(false);
   const [cancelError, setCancelError] = useState("");
 
@@ -54,9 +56,14 @@ export default function AppointmentDetailPage() {
   async function handleCancel() {
     if (!appointment) return;
 
-    const confirmed = window.confirm(
-      `Cancelar agendamento de ${formatDateTime(appointment.scheduled_at)}?\n\nEssa ação não poderá ser desfeita.`
-    );
+    const confirmed = await confirmModal({
+      type: "warning",
+      title: "Cancelar agendamento?",
+      message: `Cancelar agendamento de ${formatDateTime(appointment.scheduled_at)}?\n\nEssa ação não poderá ser desfeita.`,
+      confirmLabel: "Cancelar agendamento",
+      cancelLabel: "Voltar",
+      confirmColor: "error",
+    });
 
     if (!confirmed) return;
 
