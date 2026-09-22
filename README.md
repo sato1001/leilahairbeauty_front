@@ -55,7 +55,20 @@ npm run build
 
 - `/login`: acesso ao painel de login
 - `/cadastro`: cadastro de novos clientes
-- `/`: redireciona para `/login`
+- `/`: área do cliente após login
+- `/admin`: área administrativa apenas para usuários com role `ADMIN`
+
+## Área administrativa: primeiro módulo
+
+A área `/admin` foi implementada com proteção por role e gestão do catálogo de serviços seguindo o contrato real do backend:
+
+- `/admin`: dashboard administrativo
+- `/admin/servicos`: lista os serviços ativos disponíveis
+- `/admin/servicos/novo`: criação de serviço
+- `/admin/servicos/[id]/editar`: edição de serviço
+- exclusão de serviço via `DELETE /services/:id` (soft delete, sem rota de reativação)
+
+As ações respeitam as regras reais do backend: `POST /services`, `PATCH /services/:id` e `DELETE /services/:id` exigem autenticação e role `ADMIN`.
 
 ## Integração com o backend
 
@@ -63,6 +76,11 @@ O frontend se comunica com o backend em `http://localhost:3001` pelos endpoints:
 
 - `POST /auth/login`
 - `POST /auth/register`
+- `GET /services`
+- `GET /services/:id`
+- `POST /services`
+- `PATCH /services/:id`
+- `DELETE /services/:id`
 - `GET /appointments`
 - `GET /appointments/:id`
 - `PATCH /appointments/:id`
