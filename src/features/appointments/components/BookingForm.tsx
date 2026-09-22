@@ -88,6 +88,15 @@ export function BookingForm() {
   const totalPrice = selectedServices.reduce((sum, service) => sum + service.price, 0);
   const totalDuration = selectedServices.reduce((sum, service) => sum + service.duration_minutes, 0);
 
+  function handleCancelBooking() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/agendamentos");
+  }
+
   function handleToggleService(serviceId: number) {
     const nextSelection = selectedServiceIds.includes(serviceId)
       ? selectedServiceIds.filter((id) => id !== serviceId)
@@ -315,9 +324,21 @@ export function BookingForm() {
                   </Stack>
                 </Stack>
 
-                <Button type="submit" variant="contained" size="large" disabled={isPending || selectedServices.length === 0}>
-                  {isPending ? "Agendando..." : "Confirmar agendamento"}
-                </Button>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+                  <Button
+                    type="button"
+                    variant="outlined"
+                    size="large"
+                    onClick={handleCancelBooking}
+                    sx={{ flex: 1 }}
+                  >
+                    Cancelar
+                  </Button>
+
+                  <Button type="submit" variant="contained" size="large" disabled={isPending || selectedServices.length === 0} sx={{ flex: 1 }}>
+                    {isPending ? "Agendando..." : "Confirmar agendamento"}
+                  </Button>
+                </Stack>
               </Stack>
             </CardContent>
           </Card>
