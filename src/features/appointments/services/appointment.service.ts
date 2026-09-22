@@ -5,6 +5,7 @@ import type {
   CreateAppointmentResponse,
   ListAppointmentsResponse,
   UpdateAppointmentPayload,
+  WeeklyPerformanceResponse,
 } from "@/features/appointments/types/appointment.types";
 
 function getAuthToken(): string | null {
@@ -80,4 +81,21 @@ export const appointmentsService = {
     apiClient.patch<AppointmentResponse>(`/appointments/${id}/complete`, {}, {
       headers: getAuthHeaders(),
     }),
+
+  getWeeklyPerformance: (week_start?: string) => {
+    const params = new URLSearchParams();
+
+    if (week_start) {
+      params.set("week_start", week_start);
+    }
+
+    const query = params.toString();
+    const path = query
+      ? `/appointments/weekly-performance?${query}`
+      : "/appointments/weekly-performance";
+
+    return apiClient.get<WeeklyPerformanceResponse>(path, {
+      headers: getAuthHeaders(),
+    });
+  },
 };
