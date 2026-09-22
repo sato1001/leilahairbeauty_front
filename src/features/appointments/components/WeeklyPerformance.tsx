@@ -13,7 +13,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useWeeklyPerformance } from "@/features/appointments/hooks/useWeeklyPerformance";
 import type { WeeklyPerformanceResponse } from "@/features/appointments/types/appointment.types";
@@ -119,12 +119,16 @@ function MetricCard({
 }
 
 export function WeeklyPerformance() {
-  const [weekStart, setWeekStart] = useState<string>(() => getMondayOfCurrentWeek());
+  const [weekStart, setWeekStart] = useState<string>("");
   const { data, isLoading, isError, refetch } = useWeeklyPerformance(weekStart);
+
+  useEffect(() => {
+    setWeekStart(getMondayOfCurrentWeek());
+  }, []);
 
   const weekMeta = useMemo(() => {
     if (!weekStart) {
-      return { range: "—", start: weekStart, end: weekStart };
+      return { range: "Carregando...", start: "", end: "" };
     }
 
     const start = weekStart;
