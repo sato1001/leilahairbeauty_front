@@ -21,6 +21,7 @@ import { AppointmentStatusBadge } from "@/features/appointments/components/Appoi
 import { useAppointment } from "@/features/appointments/hooks/useAppointments";
 import { appointmentsService } from "@/features/appointments/services/appointment.service";
 import type { AppointmentDetailResponse } from "@/features/appointments/types/appointment.types";
+import { useModal } from "@/components/providers/ModalProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 const channelLabels: Record<string, string> = {
@@ -52,6 +53,7 @@ export default function AdminAppointmentDetailPage() {
   const params = useParams<{ id: string }>();
   const id = Number(params?.id ?? 0);
   const queryClient = useQueryClient();
+  const { confirmModal } = useModal();
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const { data, isLoading, isError, refetch } = useAppointment(id);
@@ -119,27 +121,57 @@ export default function AdminAppointmentDetailPage() {
     },
   });
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (!appointment) return;
-    if (!window.confirm(`Confirmar o agendamento de ${formatDateTime(appointment.scheduled_at)}?`)) {
+
+    const confirmed = await confirmModal({
+      type: "confirm",
+      title: "Confirmar agendamento?",
+      message: `Confirmar o agendamento de ${formatDateTime(appointment.scheduled_at)}?`,
+      confirmLabel: "Confirmar",
+      cancelLabel: "Voltar",
+      confirmColor: "primary",
+    });
+
+    if (!confirmed) {
       return;
     }
 
     confirmMutation.mutate();
   }
 
-  function handleComplete() {
+  async function handleComplete() {
     if (!appointment) return;
-    if (!window.confirm(`Concluir o agendamento de ${formatDateTime(appointment.scheduled_at)}?`)) {
+
+    const confirmed = await confirmModal({
+      type: "confirm",
+      title: "Concluir agendamento?",
+      message: `Concluir o agendamento de ${formatDateTime(appointment.scheduled_at)}?`,
+      confirmLabel: "Concluir",
+      cancelLabel: "Voltar",
+      confirmColor: "success",
+    });
+
+    if (!confirmed) {
       return;
     }
 
     completeMutation.mutate();
   }
 
-  function handleCancel() {
+  async function handleCancel() {
     if (!appointment) return;
-    if (!window.confirm(`Cancelar o agendamento de ${formatDateTime(appointment.scheduled_at)}?`)) {
+
+    const confirmed = await confirmModal({
+      type: "warning",
+      title: "Cancelar agendamento?",
+      message: `Cancelar o agendamento de ${formatDateTime(appointment.scheduled_at)}?`,
+      confirmLabel: "Cancelar agendamento",
+      cancelLabel: "Voltar",
+      confirmColor: "error",
+    });
+
+    if (!confirmed) {
       return;
     }
 

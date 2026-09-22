@@ -13,10 +13,9 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useWeeklyPerformance } from "@/features/appointments/hooks/useWeeklyPerformance";
-import type { WeeklyPerformanceResponse } from "@/features/appointments/types/appointment.types";
 
 function getSaoPauloParts(date: Date) {
   const formatted = new Intl.DateTimeFormat("en-CA", {
@@ -119,12 +118,8 @@ function MetricCard({
 }
 
 export function WeeklyPerformance() {
-  const [weekStart, setWeekStart] = useState<string>("");
+  const [weekStart, setWeekStart] = useState<string>(() => getMondayOfCurrentWeek());
   const { data, isLoading, isError, refetch } = useWeeklyPerformance(weekStart);
-
-  useEffect(() => {
-    setWeekStart(getMondayOfCurrentWeek());
-  }, []);
 
   const weekMeta = useMemo(() => {
     if (!weekStart) {
