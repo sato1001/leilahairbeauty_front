@@ -38,7 +38,9 @@ export function LoginForm({ registered = false }: { registered?: boolean }) {
       const response = await authService.login(data);
       localStorage.setItem("leila_auth_token", response.token);
       localStorage.setItem("leila_auth_user", JSON.stringify(response.user));
-      router.push("/");
+
+      const destination = response.user.role === "ADMIN" ? "/admin" : "/";
+      router.push(destination);
     } catch (error) {
       if (error instanceof ApiClientError) {
         setSubmitError(error.message);
