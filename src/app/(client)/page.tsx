@@ -2,6 +2,7 @@
 
 import { Box, Button, Card, CardContent, Stack, Typography } from "@mui/material";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface StoredUser {
   name?: string;
@@ -9,21 +10,26 @@ interface StoredUser {
 }
 
 export default function ClientHomePage() {
-  const getInitialUserName = () => {
-    try {
-      const rawUser = localStorage.getItem("leila_auth_user");
-      if (!rawUser) {
-        return "Cliente";
+  const [userName, setUserName] = useState("Cliente");
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      try {
+        const rawUser = localStorage.getItem("leila_auth_user");
+        if (!rawUser) {
+          setUserName("Cliente");
+          return;
+        }
+
+        const user = JSON.parse(rawUser) as StoredUser;
+        setUserName(user.name ? user.name.split(" ")[0] : "Cliente");
+      } catch {
+        setUserName("Cliente");
       }
+    });
 
-      const user = JSON.parse(rawUser) as StoredUser;
-      return user.name ? user.name.split(" ")[0] : "Cliente";
-    } catch {
-      return "Cliente";
-    }
-  };
-
-  const userName = getInitialUserName();
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   return (
     <Box>

@@ -8,7 +8,7 @@ import { useState } from "react";
 const navItems = [
   { label: "Início", href: "/" },
   { label: "Serviços", href: "/servicos" },
-  { label: "Meus agendamentos", href: "/meus-agendamentos" },
+  { label: "Meus agendamentos", href: "/agendamentos" },
   { label: "Agendar", href: "/agendar" },
 ];
 

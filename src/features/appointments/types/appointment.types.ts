@@ -33,10 +33,29 @@ export interface SameWeekSuggestion {
   reference_appointment_id: number;
 }
 
+export interface ListAppointmentsResponse {
+  appointments: AppointmentDetailResponse[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
 export interface CreateAppointmentPayload {
   scheduled_at: string;
   services: number[];
   client_id?: number;
+}
+
+export interface UpdateAppointmentPayload {
+  scheduled_at?: string;
+  services?: number[];
+}
+
+export interface AppointmentResponse {
+  appointment: AppointmentDetailResponse;
 }
 
 export interface CreateAppointmentResponse {

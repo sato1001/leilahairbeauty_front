@@ -24,6 +24,12 @@ async function handleApiError(response: Response): Promise<never> {
     payload = { message: text || "Não foi possível completar a operação." };
   }
 
+  if (response.status === 401 && typeof window !== "undefined") {
+    localStorage.removeItem("leila_auth_token");
+    localStorage.removeItem("leila_auth_user");
+    window.location.href = new URL("/login", window.location.origin).toString();
+  }
+
   const message = payload.message || "Não foi possível completar a operação.";
   throw new ApiClientError(message, response.status, payload.errors ?? payload);
 }

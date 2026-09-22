@@ -63,5 +63,22 @@ O frontend se comunica com o backend em `http://localhost:3001` pelos endpoints:
 
 - `POST /auth/login`
 - `POST /auth/register`
+- `GET /appointments`
+- `GET /appointments/:id`
+- `PATCH /appointments/:id`
+- `DELETE /appointments/:id`
 
 O cadastro retorna sucesso sem JWT; após concluir, a aplicação redireciona para `/login?registered=true`.
+
+## Área do cliente: Meus Agendamentos
+
+A área do cliente inclui:
+
+- listagem de agendamentos do usuário autenticado;
+- filtro por status;
+- detalhes do agendamento;
+- alteração de data/horário e serviços;
+- cancelamento lógico com confirmação;
+- atualização do cache após alteração/cancelamento.
+
+As regras de autorização e validação são respeitadas conforme o backend real, especialmente para limitações de 48 horas e acesso restrito ao próprio cliente.
