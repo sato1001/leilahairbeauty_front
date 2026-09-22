@@ -11,6 +11,8 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 
+import { WeeklyPerformance } from "@/features/appointments/components/WeeklyPerformance";
+
 export default function AdminDashboardPage() {
   return (
     <Box>
@@ -49,7 +51,7 @@ export default function AdminDashboardPage() {
                   Agendamentos
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  A área administrativa de agendamentos será expandida em uma próxima etapa.
+                  Consulte e acompanhe os agendamentos do salão em tempo real.
                 </Typography>
                 <Button component={Link} href="/admin/agendamentos" variant="outlined">
                   Consultar agenda
@@ -59,6 +61,8 @@ export default function AdminDashboardPage() {
           </Card>
         </Grid>
       </Grid>
+
+      <WeeklyPerformance />
     </Box>
   );
 }

@@ -62,3 +62,23 @@ export interface CreateAppointmentResponse {
   appointment: AppointmentDetailResponse;
   suggestion?: SameWeekSuggestion;
 }
+
+export interface WeeklyPerformanceSummary {
+  confirmed: number;
+  completed: number;
+  cancelled: number;
+}
+
+export interface WeeklyPerformanceMostBookedService {
+  service_id: number | string;
+  name: string;
+  quantity: number;
+}
+
+export interface WeeklyPerformanceResponse {
+  week_start: string;
+  week_end: string;
+  summary: WeeklyPerformanceSummary;
+  revenue: number;
+  most_booked_service: WeeklyPerformanceMostBookedService | null;
+}
