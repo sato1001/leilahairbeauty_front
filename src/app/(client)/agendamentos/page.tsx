@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Alert,
   Box,
   Button,
   CircularProgress,
@@ -15,10 +14,11 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AppointmentCard } from "@/features/appointments/components/AppointmentCard";
 import { useAppointments } from "@/features/appointments/hooks/useAppointments";
+import { useNotification } from "@/components/providers/NotificationProvider";
 
 const statusOptions = [
   { value: "", label: "Todos" },
@@ -29,6 +29,7 @@ const statusOptions = [
 ];
 
 export default function MyAppointmentsPage() {
+  const { notify } = useNotification();
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(6);
@@ -43,6 +44,15 @@ export default function MyAppointmentsPage() {
   );
 
   const { data, isLoading, isError, refetch } = useAppointments(query);
+
+  useEffect(() => {
+    if (isError) {
+      notify({
+        severity: "error",
+        message: "Não foi possível carregar seus agendamentos.",
+      });
+    }
+  }, [isError, notify]);
 
   const appointments = data?.appointments ?? [];
   const pagination = data?.pagination;
@@ -87,9 +97,14 @@ export default function MyAppointmentsPage() {
           <CircularProgress />
         </Box>
       ) : isError ? (
-        <Alert severity="error" action={<Button onClick={() => refetch()}>Tentar novamente</Button>}>
-          Não foi possível carregar seus agendamentos.
-        </Alert>
+        <Box sx={{ textAlign: "center", py: 6 }}>
+          <Typography variant="h6" sx={{ mb: 1 }} color="text.secondary">
+            Ocorreu um erro ao carregar seus agendamentos.
+          </Typography>
+          <Button variant="outlined" onClick={() => void refetch()} sx={{ mt: 1 }}>
+            Tentar novamente
+          </Button>
+        </Box>
       ) : appointments.length === 0 ? (
         <Box sx={{ textAlign: "center", py: 6 }}>
           <Typography variant="h6" sx={{ mb: 1 }}>

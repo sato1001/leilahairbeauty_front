@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import theme from "@/config/theme";
 import { ModalProvider } from "@/components/providers/ModalProvider";
+import { NotificationProvider } from "@/components/providers/NotificationProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -26,7 +27,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <QueryClientProvider client={queryClient}>
-          <ModalProvider>{children}</ModalProvider>
+          <ModalProvider>
+            <NotificationProvider>{children}</NotificationProvider>
+          </ModalProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </AppRouterCacheProvider>

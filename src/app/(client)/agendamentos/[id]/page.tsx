@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -14,12 +13,13 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AppointmentStatusBadge } from "@/features/appointments/components/AppointmentStatusBadge";
 import { useAppointment } from "@/features/appointments/hooks/useAppointments";
 import { appointmentsService } from "@/features/appointments/services/appointment.service";
 import { useModal } from "@/components/providers/ModalProvider";
+import { useNotification } from "@/components/providers/NotificationProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 function formatDateTime(value: string) {
@@ -42,11 +42,20 @@ export default function AppointmentDetailPage() {
   const router = useRouter();
   const id = Number(params?.id ?? 0);
   const { confirmModal } = useModal();
+  const { notify } = useNotification();
   const [isCanceling, setIsCanceling] = useState(false);
-  const [cancelError, setCancelError] = useState("");
 
   const { data, isLoading, isError, refetch } = useAppointment(id);
   const appointment = data?.appointment;
+
+  useEffect(() => {
+    if (isError) {
+      notify({
+        severity: "error",
+        message: "Não foi possível carregar este agendamento.",
+      });
+    }
+  }, [isError, notify]);
 
   const canManage = useMemo(() => {
     if (!appointment) return false;
@@ -68,19 +77,28 @@ export default function AppointmentDetailPage() {
     if (!confirmed) return;
 
     setIsCanceling(true);
-    setCancelError("");
 
     try {
       await appointmentsService.cancel(appointment.id);
+      notify({
+        severity: "success",
+        message: "Agendamento cancelado com sucesso.",
+      });
       router.refresh();
       await refetch();
     } catch (error) {
       if (error instanceof ApiClientError) {
-        setCancelError(error.message);
+        notify({
+          severity: "error",
+          message: error.message,
+        });
         return;
       }
 
-      setCancelError("Não foi possível cancelar este agendamento no momento.");
+      notify({
+        severity: "error",
+        message: "Não foi possível cancelar este agendamento no momento.",
+      });
     } finally {
       setIsCanceling(false);
     }
@@ -96,10 +114,13 @@ export default function AppointmentDetailPage() {
 
   if (isError || !appointment) {
     return (
-      <Box>
-        <Alert severity="error" action={<Button onClick={() => refetch()}>Tentar novamente</Button>}>
-          Não foi possível carregar este agendamento.
-        </Alert>
+      <Box sx={{ textAlign: "center", py: 6 }}>
+        <Typography variant="h6" sx={{ mb: 1 }} color="text.secondary">
+          Não foi possível carregar os detalhes deste agendamento.
+        </Typography>
+        <Button variant="outlined" onClick={() => void refetch()} sx={{ mt: 1 }}>
+          Tentar novamente
+        </Button>
       </Box>
     );
   }
@@ -127,8 +148,6 @@ export default function AppointmentDetailPage() {
           )}
         </Stack>
       </Stack>
-
-      {cancelError && <Alert severity="error" sx={{ mb: 3 }}>{cancelError}</Alert>}
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7 }}>

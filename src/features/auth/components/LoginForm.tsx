@@ -9,10 +9,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { authService } from "@/features/auth/services/auth.service";
 import { loginSchema, type LoginFormValues } from "@/features/auth/schemas/login.schema";
+import { useNotification } from "@/components/providers/NotificationProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 export function LoginForm({ registered = false }: { registered?: boolean }) {
   const router = useRouter();
+  const { notify } = useNotification();
   const [showPassword, setShowPassword] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,12 +44,15 @@ export function LoginForm({ registered = false }: { registered?: boolean }) {
       const destination = response.user.role === "ADMIN" ? "/admin" : "/";
       router.push(destination);
     } catch (error) {
-      if (error instanceof ApiClientError) {
-        setSubmitError(error.message);
-        return;
-      }
-
-      setSubmitError("Não foi possível fazer login no momento.");
+      const message =
+        error instanceof ApiClientError
+          ? error.message
+          : "Não foi possível fazer login no momento.";
+      setSubmitError(message);
+      notify({
+        severity: "error",
+        message,
+      });
     } finally {
       setIsSubmitting(false);
     }

@@ -36,6 +36,7 @@ import {
 import type { AdminClientResponse } from "@/features/appointments/types/appointment.types";
 import { useServices } from "@/features/services/hooks/useServices";
 import type { ServiceItem } from "@/features/services/types/service.types";
+import { useNotification } from "@/components/providers/NotificationProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 function formatPrice(value: number) {
@@ -132,6 +133,7 @@ function mapAppointmentError(error: ApiClientError) {
 
 export function AdminAppointmentForm() {
   const router = useRouter();
+  const { notify } = useNotification();
   const { data: services = [], isLoading: isLoadingServices, isError: isServicesError, refetch } = useServices();
   const { mutateAsync: createAppointment, isPending: isCreatingAppointment } = useCreateAppointment();
   const { mutateAsync: createClient, isPending: isCreatingClient } = useCreateAdminClient();
@@ -140,15 +142,21 @@ export function AdminAppointmentForm() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedClient, setSelectedClient] = useState<AdminClientResponse | null>(null);
-  const [clientSuccessMessage, setClientSuccessMessage] = useState("");
-  const [clientError, setClientError] = useState("");
   const [submitError, setSubmitError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [dateHelper, setDateHelper] = useState("");
 
   const activeServices = services.filter((service) => service.active);
+
+  useEffect(() => {
+    if (isServicesError) {
+      notify({
+        severity: "error",
+        message: "Não foi possível carregar os serviços disponíveis.",
+      });
+    }
+  }, [isServicesError, notify]);
 
   const {
     data: searchData,
@@ -225,8 +233,6 @@ export function AdminAppointmentForm() {
   function handleSelectClient(client: AdminClientResponse) {
     setSelectedClient(client);
     setClientMode("existing");
-    setClientError("");
-    setClientSuccessMessage("");
   }
 
   function handleToggleService(serviceId: number) {
@@ -252,9 +258,6 @@ export function AdminAppointmentForm() {
   }
 
   async function handleCreateClient(values: CreateAdminClientFormValues) {
-    setClientError("");
-    setClientSuccessMessage("");
-
     try {
       const payload: {
         name: string;
@@ -272,27 +275,38 @@ export function AdminAppointmentForm() {
       const result = await createClient(payload);
       setSelectedClient(result.client);
       setClientMode("existing");
-      setClientSuccessMessage("Cliente criado com sucesso.");
+      notify({
+        severity: "success",
+        message: "Cliente criado com sucesso.",
+      });
       newClientForm.reset({ name: "", phone: "", email: "" });
       setSearchTerm(result.client.name);
     } catch (error) {
       if (error instanceof ApiClientError) {
-        setClientError(error.message);
+        notify({
+          severity: "error",
+          message: error.message,
+        });
         return;
       }
 
       if (error instanceof Error) {
-        setClientError(error.message);
+        notify({
+          severity: "error",
+          message: error.message,
+        });
         return;
       }
 
-      setClientError("Não foi possível criar o cliente no momento.");
+      notify({
+        severity: "error",
+        message: "Não foi possível criar o cliente no momento.",
+      });
     }
   }
 
   async function onSubmit(values: AdminBookingFormValues) {
     setSubmitError("");
-    setSuccessMessage("");
 
     if (!selectedClient) {
       setSubmitError("Selecione um cliente para continuar.");
@@ -313,9 +327,10 @@ export function AdminAppointmentForm() {
         services: values.services,
       });
 
-      setSuccessMessage(
-        `Agendamento criado com sucesso.\nStatus: Confirmado\nCanal: Telefone`,
-      );
+      notify({
+        severity: "success",
+        message: "Agendamento criado com sucesso.",
+      });
 
       window.setTimeout(() => {
         router.push(`/admin/agendamentos/${result.appointment.id}`);
@@ -355,12 +370,6 @@ export function AdminAppointmentForm() {
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: "grid", gap: 3 }}>
       {submitError && <Alert severity="error">{submitError}</Alert>}
 
-      {successMessage && (
-        <Alert severity="success" sx={{ whiteSpace: "pre-line" }}>
-          {successMessage}
-        </Alert>
-      )}
-
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7 }}>
           <Stack spacing={3}>
@@ -389,16 +398,11 @@ export function AdminAppointmentForm() {
                       variant={clientMode === "new" ? "contained" : "outlined"}
                       onClick={() => {
                         setClientMode("new");
-                        setClientSuccessMessage("");
-                        setClientError("");
                       }}
                     >
                       + Novo cliente
                     </Button>
                   </Stack>
-
-                  {clientSuccessMessage && <Alert severity="success">{clientSuccessMessage}</Alert>}
-                  {clientError && <Alert severity="error">{clientError}</Alert>}
 
                   {selectedClient && (
                     <Alert severity="info">
@@ -733,7 +737,7 @@ export function AdminAppointmentForm() {
                     type="submit"
                     variant="contained"
                     fullWidth
-                    disabled={isCreatingAppointment || Boolean(successMessage)}
+                    disabled={isCreatingAppointment}
                   >
                     {isCreatingAppointment ? "Criando..." : "Criar agendamento"}
                   </Button>

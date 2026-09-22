@@ -8,9 +8,12 @@ import { ServiceForm } from "@/features/services/components/ServiceForm";
 import type { ServiceFormValues } from "@/features/services/schemas/service.schema";
 import { servicesService } from "@/features/services/services/service.service";
 
+import { useNotification } from "@/components/providers/NotificationProvider";
+
 export default function EditServicePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const { notify } = useNotification();
   const [service, setService] = useState<ServiceFormValues | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -51,6 +54,7 @@ export default function EditServicePage() {
         price: values.price,
       });
 
+      notify({ severity: "success", message: "Serviço atualizado com sucesso." });
       router.push("/admin/servicos");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Não foi possível atualizar o serviço.";

@@ -19,10 +19,12 @@ import { useForm } from "react-hook-form";
 
 import { registerSchema, type RegisterFormValues } from "@/features/auth/schemas/register.schema";
 import { authService } from "@/features/auth/services/auth.service";
+import { useNotification } from "@/components/providers/NotificationProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 export function RegisterForm() {
   const router = useRouter();
+  const { notify } = useNotification();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -58,14 +60,22 @@ export function RegisterForm() {
 
       await authService.register(payload);
 
+      notify({
+        severity: "success",
+        message: "Conta criada com sucesso. Faça login para continuar.",
+      });
+
       router.push("/login?registered=true");
     } catch (error) {
-      if (error instanceof ApiClientError) {
-        setSubmitError(error.message);
-        return;
-      }
-
-      setSubmitError("Não foi possível criar a conta no momento.");
+      const message =
+        error instanceof ApiClientError
+          ? error.message
+          : "Não foi possível criar a conta no momento.";
+      setSubmitError(message);
+      notify({
+        severity: "error",
+        message,
+      });
     } finally {
       setIsSubmitting(false);
     }

@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { AppointmentStatusBadge } from "@/features/appointments/components/AppointmentStatusBadge";
@@ -22,6 +22,7 @@ import { useAppointment } from "@/features/appointments/hooks/useAppointments";
 import { appointmentsService } from "@/features/appointments/services/appointment.service";
 import type { AppointmentDetailResponse } from "@/features/appointments/types/appointment.types";
 import { useModal } from "@/components/providers/ModalProvider";
+import { useNotification } from "@/components/providers/NotificationProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 const channelLabels: Record<string, string> = {
@@ -54,10 +55,19 @@ export default function AdminAppointmentDetailPage() {
   const id = Number(params?.id ?? 0);
   const queryClient = useQueryClient();
   const { confirmModal } = useModal();
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const { notify } = useNotification();
 
   const { data, isLoading, isError, refetch } = useAppointment(id);
   const appointment = data?.appointment;
+
+  useEffect(() => {
+    if (isError) {
+      notify({
+        severity: "error",
+        message: "Não foi possível carregar este agendamento.",
+      });
+    }
+  }, [isError, notify]);
 
   const canConfirm = appointment?.status === "PENDING";
   const canComplete = appointment?.status === "CONFIRMED";
@@ -82,12 +92,12 @@ export default function AdminAppointmentDetailPage() {
   const confirmMutation = useMutation({
     mutationFn: () => appointmentsService.confirm(id),
     onSuccess: (response) => {
-      setFeedback({ type: "success", message: "Agendamento confirmado com sucesso." });
+      notify({ severity: "success", message: "Agendamento confirmado com sucesso." });
       setCachedAppointment(response.appointment);
     },
     onError: (error) => {
-      setFeedback({
-        type: "error",
+      notify({
+        severity: "error",
         message: error instanceof ApiClientError ? error.message : "Não foi possível confirmar este agendamento.",
       });
     },
@@ -96,12 +106,12 @@ export default function AdminAppointmentDetailPage() {
   const completeMutation = useMutation({
     mutationFn: () => appointmentsService.complete(id),
     onSuccess: (response) => {
-      setFeedback({ type: "success", message: "Agendamento concluído com sucesso." });
+      notify({ severity: "success", message: "Agendamento concluído com sucesso." });
       setCachedAppointment(response.appointment);
     },
     onError: (error) => {
-      setFeedback({
-        type: "error",
+      notify({
+        severity: "error",
         message: error instanceof ApiClientError ? error.message : "Não foi possível concluir este agendamento.",
       });
     },
@@ -110,12 +120,12 @@ export default function AdminAppointmentDetailPage() {
   const cancelMutation = useMutation({
     mutationFn: () => appointmentsService.cancel(id),
     onSuccess: (response) => {
-      setFeedback({ type: "success", message: "Agendamento cancelado com sucesso." });
+      notify({ severity: "success", message: "Agendamento cancelado com sucesso." });
       setCachedAppointment(response.appointment);
     },
     onError: (error) => {
-      setFeedback({
-        type: "error",
+      notify({
+        severity: "error",
         message: error instanceof ApiClientError ? error.message : "Não foi possível cancelar este agendamento.",
       });
     },
@@ -219,12 +229,6 @@ export default function AdminAppointmentDetailPage() {
           )}
         </Stack>
       </Stack>
-
-      {feedback && (
-        <Alert severity={feedback.type} sx={{ mb: 3 }}>
-          {feedback.message}
-        </Alert>
-      )}
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 5 }}>
