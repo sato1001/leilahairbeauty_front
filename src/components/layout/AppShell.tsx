@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", backgroundColor: "background.default" }}>
+    <Box sx={{ height: "100dvh", display: "flex", backgroundColor: "background.default", overflow: "hidden" }}>
       <AppSidebar
         items={navItems}
         activePath={pathname}
@@ -59,7 +59,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         onLogout={handleLogout}
       />
 
-      <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <AppHeader
           title={
             navItems.find((item) => isNavigationActive(pathname, item.href, item.exact))?.label ??
