@@ -23,9 +23,9 @@ import {
   bookingFormSchema,
   type BookingFormValues,
 } from "@/features/appointments/schemas/appointment.schema";
-import type { CreateAppointmentResponse } from "@/features/appointments/types/appointment.types";
 import { useServices } from "@/features/services/hooks/useServices";
 import type { ServiceItem } from "@/features/services/types/service.types";
+import { useNotification } from "@/components/providers/NotificationProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 function formatPrice(value: number) {
@@ -37,10 +37,10 @@ function formatPrice(value: number) {
 
 export function BookingForm() {
   const router = useRouter();
+  const { notify } = useNotification();
   const { data: services = [], isLoading, isError, refetch } = useServices();
   const { mutateAsync, isPending } = useCreateAppointment();
   const [submitError, setSubmitError] = useState("");
-  const [createdAppointment, setCreatedAppointment] = useState<CreateAppointmentResponse | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
@@ -64,6 +64,15 @@ export function BookingForm() {
       router.replace("/login");
     }
   }, [router]);
+
+  useEffect(() => {
+    if (isError) {
+      notify({
+        severity: "error",
+        message: "Não foi possível carregar os serviços disponíveis.",
+      });
+    }
+  }, [isError, notify]);
 
   useEffect(() => {
     const combinedValue = selectedDate && selectedTime ? `${selectedDate}T${selectedTime}` : "";
@@ -99,7 +108,10 @@ export function BookingForm() {
       };
 
       const result = await mutateAsync(payload);
-      setCreatedAppointment(result);
+      notify({
+        severity: "success",
+        message: `Agendamento criado com sucesso para ${new Date(result.appointment.scheduled_at).toLocaleString("pt-BR")}.`,
+      });
       setValue("scheduled_at", "", { shouldDirty: true, shouldValidate: true });
       setValue("services", [], { shouldDirty: true, shouldValidate: true });
     } catch (error) {
@@ -146,12 +158,6 @@ export function BookingForm() {
 
       {submitError && (
         <Alert severity="error">{submitError}</Alert>
-      )}
-
-      {createdAppointment && (
-        <Alert severity="success">
-          Agendamento criado com sucesso para {new Date(createdAppointment.appointment.scheduled_at).toLocaleString("pt-BR")}.
-        </Alert>
       )}
 
       <Grid container spacing={3}>

@@ -11,29 +11,42 @@ import {
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect } from "react";
 
 import { servicesService } from "@/features/services/services/service.service";
 import { useModal } from "@/components/providers/ModalProvider";
+import { useNotification } from "@/components/providers/NotificationProvider";
 
 export default function AdminServicesPage() {
   const queryClient = useQueryClient();
   const { confirmModal } = useModal();
-  const [deleteError, setDeleteError] = useState("");
+  const { notify } = useNotification();
 
   const { data: services = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["admin-services"],
     queryFn: () => servicesService.list(),
   });
 
+  useEffect(() => {
+    if (isError) {
+      notify({
+        severity: "error",
+        message: "Não foi possível carregar os serviços.",
+      });
+    }
+  }, [isError, notify]);
+
   const deleteMutation = useMutation({
     mutationFn: (serviceId: number) => servicesService.remove(serviceId),
     onSuccess: () => {
-      setDeleteError("");
+      notify({ severity: "success", message: "Serviço desativado com sucesso." });
       void queryClient.invalidateQueries({ queryKey: ["admin-services"] });
     },
     onError: (error) => {
-      setDeleteError(error instanceof Error ? error.message : "Não foi possível desativar o serviço.");
+      notify({
+        severity: "error",
+        message: error instanceof Error ? error.message : "Não foi possível desativar o serviço.",
+      });
     },
   });
 
@@ -51,7 +64,6 @@ export default function AdminServicesPage() {
       return;
     }
 
-    setDeleteError("");
     deleteMutation.mutate(serviceId);
   }
 
@@ -71,12 +83,6 @@ export default function AdminServicesPage() {
           Novo serviço
         </Button>
       </Stack>
-
-      {deleteError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {deleteError}
-        </Alert>
-      )}
 
       {isLoading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>

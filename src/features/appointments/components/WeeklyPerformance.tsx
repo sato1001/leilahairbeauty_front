@@ -13,9 +13,10 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useWeeklyPerformance } from "@/features/appointments/hooks/useWeeklyPerformance";
+import { useNotification } from "@/components/providers/NotificationProvider";
 
 function getSaoPauloParts(date: Date) {
   const formatted = new Intl.DateTimeFormat("en-CA", {
@@ -118,8 +119,18 @@ function MetricCard({
 }
 
 export function WeeklyPerformance() {
+  const { notify } = useNotification();
   const [weekStart, setWeekStart] = useState<string>(() => getMondayOfCurrentWeek());
   const { data, isLoading, isError, refetch } = useWeeklyPerformance(weekStart);
+
+  useEffect(() => {
+    if (isError) {
+      notify({
+        severity: "error",
+        message: "Não foi possível carregar os indicadores da semana.",
+      });
+    }
+  }, [isError, notify]);
 
   const weekMeta = useMemo(() => {
     if (!weekStart) {
