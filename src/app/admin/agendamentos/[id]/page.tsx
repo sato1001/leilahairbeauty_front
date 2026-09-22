@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { AppointmentStatusBadge } from "@/features/appointments/components/AppointmentStatusBadge";

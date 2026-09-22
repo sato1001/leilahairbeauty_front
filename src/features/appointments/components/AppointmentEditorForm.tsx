@@ -22,6 +22,7 @@ import type { BookingFormValues } from "@/features/appointments/schemas/appointm
 import { appointmentsService } from "@/features/appointments/services/appointment.service";
 import type { AppointmentDetailResponse } from "@/features/appointments/types/appointment.types";
 import { useServices } from "@/features/services/hooks/useServices";
+import { useNotification } from "@/components/providers/NotificationProvider";
 import { ApiClientError } from "@/lib/api/client";
 
 function formatPrice(value: number) {
@@ -39,6 +40,7 @@ export function AppointmentEditorForm({
   successRedirectUrl: string;
 }) {
   const router = useRouter();
+  const { notify } = useNotification();
   const { data: services = [] } = useServices();
   const [submitError, setSubmitError] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
@@ -104,14 +106,22 @@ export function AppointmentEditorForm({
         services: values.services,
       });
 
+      notify({
+        severity: "success",
+        message: "Agendamento alterado com sucesso.",
+      });
+
       router.push(successRedirectUrl);
     } catch (error) {
-      if (error instanceof ApiClientError) {
-        setSubmitError(error.message);
-        return;
-      }
-
-      setSubmitError("Não foi possível atualizar este agendamento.");
+      const message =
+        error instanceof ApiClientError
+          ? error.message
+          : "Não foi possível atualizar este agendamento.";
+      setSubmitError(message);
+      notify({
+        severity: "error",
+        message,
+      });
     }
   }
 

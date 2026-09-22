@@ -23,6 +23,7 @@ import {
   bookingFormSchema,
   type BookingFormValues,
 } from "@/features/appointments/schemas/appointment.schema";
+import type { CreateAppointmentResponse } from "@/features/appointments/types/appointment.types";
 import { useServices } from "@/features/services/hooks/useServices";
 import type { ServiceItem } from "@/features/services/types/service.types";
 import { useNotification } from "@/components/providers/NotificationProvider";
@@ -115,17 +116,17 @@ export function BookingForm() {
       setValue("scheduled_at", "", { shouldDirty: true, shouldValidate: true });
       setValue("services", [], { shouldDirty: true, shouldValidate: true });
     } catch (error) {
+      let message = "Não foi possível criar o agendamento no momento.";
       if (error instanceof ApiClientError) {
-        setSubmitError(error.message);
-        return;
+        message = error.message;
+      } else if (error instanceof Error) {
+        message = error.message;
       }
-
-      if (error instanceof Error) {
-        setSubmitError(error.message);
-        return;
-      }
-
-      setSubmitError("Não foi possível criar o agendamento no momento.");
+      setSubmitError(message);
+      notify({
+        severity: "error",
+        message,
+      });
     }
   }
 
